@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized Education Platform - Login</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.3/web3.min.js"></script>
+    <script src="https://unpkg.com/ipfs-http-client/dist/index.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #000080;
+            --accent-color: #4169E1;
+            --background-color: #F0F8FF;
+            --text-color: #333333;
+            --card-bg: #FFFFFF;
+            --input-bg: #E6E6FA;
+            --success-color: #32CD32;
+            --error-color: #FF4500;
+            --button-hover: #1E90FF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        h1,
+        h2,
+        h3 {
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--background-color);
+            text-align: center;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-box {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--secondary-color);
+            border-radius: 5px;
+            background-color: var(--input-bg);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(65, 105, 225, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: var(--secondary-color);
+            color: var(--card-bg);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-size: 1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .btn:hover {
+            background-color: var(--button-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .error-overlay,
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .error-content,
+        .success-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .error-content h2 {
+            color: var(--error-color);
+            margin-bottom: 1rem;
+        }
+
+        .success-content h2 {
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+
+        .error-content button,
+        .success-content button {
+            margin-top: 1rem;
+        }
+
+        .first-time-user {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .first-time-user a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .first-time-user a:hover {
+            text-decoration: underline;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--input-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--secondary-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Decentralized Education Platform</h1>
+        <div class="form-box">
+            <h2>Login with Credential</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="ethereum_address">Ethereum Address:</label>
+                    <input type="text" id="ethereum_address" name="ethereum_address" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <div class="first-time-user">
+                <a href="#" id="showIssueCredential">First time user? Get your credential</a>
+            </div>
+        </div>
+
+        <div id="issueCredentialForm" class="form-box" style="display: none;">
+            <h2>Issue Credential</h2>
+            <form id="issueForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="user_id">User ID:</label>
+                    <input type="text" id="user_id" required>
+                </div>
+                <div class="form-group">
+                    <label for="credential_file">Upload Files:</label>
+                    <input type="file" id="credential_file" required>
+                </div>
+                <button type="button" class="btn" onclick="issueCredential()">Issue Credential</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="errorOverlay" class="error-overlay">
+        <div class="error-content">
+            <h2>Error</h2>
+            <p id="errorMessage"></p>
+            <button onclick="closeErrorOverlay()" class="btn">Close</button>
+        </div>
+    </div>
+
+    <div id="successOverlay" class="success-overlay">
+        <div class="success-content">
+            <h2>Success</h2>
+            <p id="successMessage"></p>
+            <button onclick="closeSuccessOverlay()" class="btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let web3;
+        const contractAddress = "0x5C3F71c488eAF4c8F9EC4916287c4acb261be89D";
+        const contractABI = [
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "courseName",
+                        "type": "string"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "ipfsHash",
+                        "type": "string"
+                    }
+                ],
+                "name": "CourseCompleted",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "courseName",
+                        "type": "string"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "courseFee",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "CoursePurchased",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "userId",
+                        "type": "string"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "credentialHash",
+                        "type": "string"
+                    }
+                ],
+                "name": "CredentialIssued",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "string",
+                        "name": "message",
+                        "type": "string"
+                    }
+                ],
+                "name": "DebugLog",
+                "type": "event"
+            },
+            {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "user",
+                        "type": "address"
+                    },
+                    {
+                        "indexed": false,
+                        "internalType": "uint256",
+                        "name": "refundAmount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "EtherRefunded",
+                "type": "event"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "name": "assignmentExists",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function",
+                "constant": true
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    }
+                ],
+                "name": "credentials",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "userId",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "credentialHash",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isValid",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function",
+                "constant": true
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    }
+                ],
+                "name": "userCourses",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "courseName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "courseFee",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isPurchased",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "isCompleted",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "assignmentHash",
+                        "type": "string"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function",
+                "constant": true
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_userId",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_credentialHash",
+                        "type": "string"
+                    }
+                ],
+                "name": "issueCredential",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "validateCredential",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function",
+                "constant": true
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getCredential",
+                "outputs": [
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function",
+                "constant": true
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "courseName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "courseFee",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "purchaseCourse",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function",
+                "payable": true
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "string",
+                        "name": "courseName",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "ipfsHash",
+                        "type": "string"
+                    }
+                ],
+                "name": "completeCourse",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "fundContract",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function",
+                "payable": true
+            },
+            {
+                "inputs": [],
+                "name": "getContractBalance",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function",
+                "constant": true
+            }
+        ];
+
+
+        async function initializeWeb3() {
+            if (typeof window.ethereum !== 'undefined') {
+                console.log('MetaMask is installed!');
+                web3 = new Web3(window.ethereum);
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                } catch (error) {
+                    console.error("User denied account access");
+                }
+            } else {
+                showErrorMessage("Please install MetaMask to use this feature.");
+            }
+        }
+
+        window.addEventListener('load', initializeWeb3);
+
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const ethereumAddress = document.getElementById('ethereum_address').value;
+            if (!web3.utils.isAddress(ethereumAddress)) {
+                showErrorMessage("Invalid Ethereum address.");
+                return;
+            }
+            try {
+                const response = await fetch('/validate_credential', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `ethereum_address=${ethereumAddress}`
+                });
+                const data = await response.json();
+                if (data.is_valid) {
+                    window.location.href = '/main';
+                } else {
+                    showErrorMessage('Invalid credential. Please check your Ethereum address.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showErrorMessage('An error occurred. Please try again.');
+            }
+        });
+
+        document.getElementById('showIssueCredential').addEventListener('click', function (e) {
+            e.preventDefault();
+            document.getElementById('issueCredentialForm').style.display = 'block';
+        });
+
+        async function issueCredential() {
+            if (!web3) {
+                showErrorMessage("Web3 is not initialized. Please make sure MetaMask is connected.");
+                return;
+            }
+
+            const name = document.getElementById('name').value;
+            const userId = document.getElementById('user_id').value;
+            const credentialFile = document.getElementById('credential_file').files[0];
+
+            const accounts = await web3.eth.getAccounts();
+            const account = accounts[0];
+
+            const formData = new FormData();
+            formData.append('name', name);
+            formData.append('user_id', userId);
+            formData.append('credential_file', credentialFile);
+
+            try {
+                const response = await fetch('/issue_credential', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const result = await response.json();
+                if (result.status === "error") {
+                    throw new Error(result.message);
+                }
+                const ipfsHash = result.ipfs_hash;
+
+                const contract = new web3.eth.Contract(contractABI, contractAddress);
+                const receipt = await contract.methods.issueCredential(name, userId, ipfsHash).send({ from: account });
+                showSuccessMessage("Credential issued successfully!");
+            } catch (error) {
+                console.error("Error issuing credential:", error);
+                showErrorMessage("Error issuing credential: " + error.message);
+            }
+        }
+
+        function showErrorMessage(message) {
+            const errorOverlay = document.getElementById('errorOverlay');
+            const errorMessageElement = document.getElementById('errorMessage');
+            errorMessageElement.textContent = message;
+            errorOverlay.style.display = 'flex';
+        }
+
+        function closeErrorOverlay() {
+            document.getElementById('errorOverlay').style.display = 'none';
+        }
+
+        function showSuccessMessage(message) {
+            const successOverlay = document.getElementById('successOverlay');
+            const successMessageElement = document.getElementById('successMessage');
+            successMessageElement.textContent = message;
+            successOverlay.style.display = 'flex';
+        }
+
+        function closeSuccessOverlay() {
+            document.getElementById('successOverlay').style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>
